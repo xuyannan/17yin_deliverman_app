@@ -8,45 +8,66 @@ import React, {
   Component,
   StyleSheet,
   Text,
-  View
+  TextInput,
+  TouchableHighlight,
+  View,
+  AlertIOS,
+  ListView,
+  NavigatorIOS
 } from 'react-native';
 
-class delivermanApp extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
-      </View>
-    );
-  }
-}
+var Login = require('./components/login');
+var TaskList = require('./components/taskList/taskList.ios');
 
-const styles = StyleSheet.create({
+var Base64 = require('base-64');
+
+// class delivermanApp extends Component {
+var delivermanApp = React.createClass({
+  getInitialState: function() {
+    return {
+      mobile: '18600000009',
+      password: '111111',
+      user: {name: '小张'},
+      loaded: false,
+      token: 'MTg2MDAwMDAwMDk6MTExMTEx',
+      summary: {}
+    }
+  },
+  render: function () {
+    if (!this.state.user) {
+      return this.renderLoginForm();
+    } else {
+      return (
+        // <TaskList token={this.state.token}></TaskList>
+        <NavigatorIOS
+        style={styles.container}
+        tintColor='#FF6600'
+        initialRoute={{
+          title: '订单列表',
+          component: TaskList,
+          passProps: {token: this.state.token}
+        }}/>
+      )
+    }
+  },
+  onUserLogin: function(user) {
+    // AlertIOS.alert('用户', user.name);
+    this.setState({
+      user: user,
+      token: user.token
+    })
+  },
+  renderLoginForm: function () {
+    return (
+      <Login onUserLogin={this.onUserLogin}></Login>
+    )
+  }
+});
+
+var styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+    flex: 1
+  }
 });
 
 AppRegistry.registerComponent('delivermanApp', () => delivermanApp);
