@@ -18,8 +18,12 @@ var Login = require('./components/login');
 var TaskList = require('./components/taskList/taskList.android');
 var Constants = require('./constants')
 var Icon = require('react-native-vector-icons/FontAwesome');
+var moment = require('moment')
 // var TabNavigator = require('react-native-tab-navigator').default;
 import TabNavigator from 'react-native-tab-navigator';
+var Balance = require('./components/balance/balance.android');
+import { connect } from 'react-redux';
+
 var _navigator;
 // class delivermanApp extends Component {
 var delivermanApp = React.createClass({
@@ -64,7 +68,7 @@ var delivermanApp = React.createClass({
             renderSelectedIcon={() => <Icon name="check-circle-o" size={16} color="#1182fe"/>}
             badgeText=""
             onPress={() => this.setState({ selectedTab: 'balance' })}>
-            <View><Text>Balance</Text></View>
+            <Balance date={moment().format('YYYY-MM-DD')} token={this.state.user.token} navigator={navigator}></Balance>
           </TabNavigator.Item>
 
           <TabNavigator.Item

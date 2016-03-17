@@ -10,7 +10,8 @@ import React, {
 } from 'react-native';
 var Icon = require('react-native-vector-icons/FontAwesome');
 var NavigationBar = require('react-native-navbar');
-var Config = require('../../config')
+var Config = require('../../config');
+var store = require('../store');
 module.exports = React.createClass({
   getInitialState: function () {
     return {
@@ -100,10 +101,15 @@ module.exports = React.createClass({
         if (responseData.message) {
           Alert.alert('提示', responseData.message)
         } else {
-          _this.setState({
-            order: responseData.data,
-            modalVisible: false
+          // _this.setState({
+          //   order: responseData.data,
+          //   modalVisible: false
+          // });
+          store.dispatch({
+            type: 'DELETE_ORDER',
+            orderid: orderid
           });
+          _this.closeModal();
         }
       })
       .catch((error) => {

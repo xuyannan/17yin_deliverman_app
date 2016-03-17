@@ -13,6 +13,7 @@ import React, {
 var Config = require('../../config');
 var Icon = require('react-native-vector-icons/FontAwesome');
 var tweenState = require('react-tween-state');
+var store  = require('../store')
 
 module.exports = React.createClass({
   mixins: [tweenState.Mixin],
@@ -74,7 +75,7 @@ module.exports = React.createClass({
   submitOrder: function(orderid, action, memo) {
     var _this = this;
     var url = 'deliveryman/orders/' + orderid + '/procedure/' + action
-    console.log(Config.API_ROOT + url);
+
     fetch(Config.API_ROOT + url, {
         method: 'POST',
         headers: {
@@ -92,6 +93,10 @@ module.exports = React.createClass({
         if (responseData.message) {
           Alert.alert('提示', responseData.message)
         } else {
+          store.dispatch({
+            type: 'DELETE_ORDER',
+            orderid: orderid
+          })
           _this.closeModal()
         }
       })

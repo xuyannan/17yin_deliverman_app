@@ -6,7 +6,8 @@ import React, {
   ListView,
   Button,
   AlertIOS,
-  Navigator
+  Navigator,
+  TouchableHighlight
 } from 'react-native';
 var Config = require('../../config');
 var Order = require('../order/order.android');
@@ -14,6 +15,7 @@ var Icon = require('react-native-vector-icons/FontAwesome');
 var NavigationBar = require('react-native-navbar');
 var ModalBox  = require('react-native-modalbox');
 var OrderProcess = require('../orderProcessForm/orderProcessForm.android')
+var store = require('../store')
 
 module.exports = React.createClass({
   getInitialState: function () {
@@ -21,11 +23,21 @@ module.exports = React.createClass({
       tasks: [],
       summary: {},
       loaded: false,
-      showOrderListConfig: {}
+      showOrderListConfig: {},
+      dataSource: new ListView.DataSource({
+        rowHasChanged: (row1, row2) => row1 !== row2,
+      }),
+      orderDataSource: {}
     }
   },
   componentDidMount: function () {
+    let _this = this
     this.loadTasks(this.props.token);
+    store.subscribe(function() {
+      _this.setState({
+        tasks: store.getState().tasks
+      })
+    });
   },
   render: function() {
     let _this = this
@@ -50,6 +62,7 @@ module.exports = React.createClass({
     )
   },
   loadTasks: function (token) {
+    var _this = this;
     fetch(Config.API_ROOT + 'deliveryman/orders?date=2016-03-12', {
       headers: {
         'Authorization': 'Basic ' + token
@@ -57,28 +70,31 @@ module.exports = React.createClass({
       })
       .then((response) => (response.json()))
       .then(responseData => {
-
         // 默认不显示订单列表
         var _config = {}
         responseData.data.tasks.map(function (task) {
           _config[task.merchant.id] = false
         });
         this.setState({
-          tasks: responseData.data.tasks, // this.state.tasks.cloneWithRows(responseData.data.tasks),
+          // tasks: responseData.data.tasks, // this.state.tasks.cloneWithRows(responseData.data.tasks),
           summary: responseData.data.summary,
           showOrderListConfig: _config
         });
 
-
+        store.dispatch({
+          type: 'SET_TASKS',
+          tasks: responseData.data.tasks
+        })
       })
       .done();
   },
   renderTasks: function() {
     // AlertIOS.alert('task count', this.state.tasks)
     var dataSource = new ListView.DataSource({
-      rowHasChanged: (row1, row2) => row1 !== row2,
+
+      rowHasChanged: (row1, row2) => {row1 !== row2}
     });
-    dataSource = dataSource.cloneWithRows(this.state.tasks)
+    this.state.dataSource = dataSource.cloneWithRows(this.state.tasks)
     return (
       <View ref="container" style={{flex: 1}}>
         <NavigationBar
@@ -86,7 +102,7 @@ module.exports = React.createClass({
           rightButton={{title: ''}} />
         <View ref={"view"} style={styles.container}>
           <ListView
-          dataSource={dataSource}
+          dataSource={this.state.dataSource}
           renderRow={this.renderTask}
           renderHeader={this.renderSummary}
           style={styles.listView}/>
@@ -108,7 +124,7 @@ module.exports = React.createClass({
   },
   renderTask: function (task) {
     var orders = new ListView.DataSource({
-      rowHasChanged: (row1, row2) => row1 !== row2
+      rowHasChanged: (row1, row2) => {row1 !== row2;}
     });
     orders = orders.cloneWithRows(task.orders);
     var _this = this
@@ -124,10 +140,23 @@ module.exports = React.createClass({
             <Text style={styles.price}>{`${task.orders.length}单 ${task.payment}元`}</Text>
           </View>
           <Text><Icon name="map-marker" size={16}/> {task.merchant.address}</Text>
-          <Text onPress={()=>_this.toggleOrderList(task.merchant.id)}>{_this.state.showOrderListConfig[task.merchant.id] ? '收起': '展开'}</Text>
+          <View style={{flexDirection: "row",justifyContent: "flex-end"}}>
+            <TouchableHighlight onPress={()=>_this.toggleOrderList(task.merchant.id)} underlayColor='#eee'>
+              <Text style={styles.buttonText}>{_this.state.showOrderListConfig[task.merchant.id] ? '收起': '展开'}</Text>
+            </TouchableHighlight>
+          </View>
         </View>
       )
     };
+    // console.log('2222', this.state.orderDataSource[task.merchant.id]);
+    // return (<View>
+    //   {renderMerchant()}
+    //   {task.orders.map(function(order) {
+    //     console.log(order.id);
+    //     return _this.renderOrder(order)
+    //   })}
+    // </View>
+    // )
     if (_this.state.showOrderListConfig[task.merchant.id]) {
       return (<View>
         {renderMerchant()}
@@ -142,7 +171,7 @@ module.exports = React.createClass({
         {renderMerchant()}
         <ListView
         dataSource={new ListView.DataSource({
-          rowHasChanged: (row1, row2) => row1 !== row2,
+          rowHasChanged: (row1, row2) => {console.log(row1, row2); row1 !== row2}
         })}
         renderRow={this.renderOrder}
         style={styles.listView}/>
@@ -153,7 +182,7 @@ module.exports = React.createClass({
   renderOrder: function(order) {
     let _this = this
     return (
-      <View ref={"modal"+order.id}>
+      <View key={order.id} ref={"modal"+order.id}>
       <Order source={order} navigator={_this.refs.navigator} token={this.props['token']}></Order>
       </View>
     )
