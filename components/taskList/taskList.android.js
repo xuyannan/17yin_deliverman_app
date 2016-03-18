@@ -16,13 +16,14 @@ var NavigationBar = require('react-native-navbar');
 var ModalBox  = require('react-native-modalbox');
 var OrderProcess = require('../orderProcessForm/orderProcessForm.android')
 var store = require('../store')
+var yinStyles = require('../../style/style');
 
 module.exports = React.createClass({
   getInitialState: function () {
     return {
       tasks: [],
       summary: {},
-      loaded: false,
+      loading: true,
       showOrderListConfig: {},
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
@@ -50,20 +51,53 @@ module.exports = React.createClass({
           return (
             <OrderProcess order={route.order} optType={route.optType} navigator={navigator} token={route.token}/>
           )
+          break;
         default:
 
       }
     };
-    return (
-      <Navigator ref="navigator"
-        initialRoute={{id: 'taskList', index: 0}}
-        renderScene={(route, navigator) => taskNaviRenderScene(route, navigator)}
-      />
-    )
+    if (this.state.loading) {
+      return (
+        <View ref="container" style={{flex: 1}}>
+          <NavigationBar
+            title={{title: '待送订单'}}
+            rightButton={{title: ''}} />
+          <View style={yinStyles.centered}><Text><Icon name="refresh" size={16}/> 加载中，请稍候</Text></View>
+        </View>
+
+      )
+    } else if (!this.state.tasks || this.state.tasks.length == 0) {
+      return (
+        <View ref="container" style={{flex: 1}}>
+          <NavigationBar
+            title={{title: '待送订单'}}
+            rightButton={{title: ''}} />
+          <View style={yinStyles.centered}>
+            <Text><Icon name="coffee" size={16}/> 没有订单，休息一会吧</Text>
+            <View style={{marginTop: 8}}>
+            <Icon.Button  name="refresh" backgroundColor="#ccc" onPress={() => _this.loadTasks(_this.props.token)}>
+              刷新
+            </Icon.Button>
+            </View>
+          </View>
+        </View>
+      )
+    } else {
+      return (
+        <Navigator ref="navigator"
+          initialRoute={{id: 'taskList', index: 0}}
+          renderScene={(route, navigator) => taskNaviRenderScene(route, navigator)}
+        />
+      )
+    }
+
   },
   loadTasks: function (token) {
     var _this = this;
-    fetch(Config.API_ROOT + 'deliveryman/orders?date=2016-03-12', {
+    _this.setState({
+      loading: true
+    })
+    fetch(Config.API_ROOT + 'deliveryman/orders', {
       headers: {
         'Authorization': 'Basic ' + token
       }
@@ -72,19 +106,26 @@ module.exports = React.createClass({
       .then(responseData => {
         // 默认不显示订单列表
         var _config = {}
-        responseData.data.tasks.map(function (task) {
-          _config[task.merchant.id] = false
-        });
-        this.setState({
-          // tasks: responseData.data.tasks, // this.state.tasks.cloneWithRows(responseData.data.tasks),
-          summary: responseData.data.summary,
-          showOrderListConfig: _config
-        });
-
-        store.dispatch({
-          type: 'SET_TASKS',
-          tasks: responseData.data.tasks
+        _this.setState({
+          loading: false
         })
+        if (typeof(responseData.data.tasks) === 'undefined') {
+          Alert.alert('提示', '获取订单失败');
+        } else {
+          responseData.data.tasks.map(function (task) {
+            _config[task.merchant.id] = false
+          });
+          this.setState({
+            // tasks: responseData.data.tasks, // this.state.tasks.cloneWithRows(responseData.data.tasks),
+            summary: responseData.data.summary,
+            showOrderListConfig: _config
+          });
+          store.dispatch({
+            type: 'SET_TASKS',
+            tasks: responseData.data.tasks
+          })
+        }
+
       })
       .done();
   },
@@ -224,5 +265,6 @@ var styles = StyleSheet.create({
   text: {
     color: '#000',
     fontSize: 18,
-  }
+  },
+  notice: {flex: 1, justifyContent: 'center',alignItems: 'center'}
 });

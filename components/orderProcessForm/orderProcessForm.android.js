@@ -101,10 +101,6 @@ module.exports = React.createClass({
         if (responseData.message) {
           Alert.alert('提示', responseData.message)
         } else {
-          // _this.setState({
-          //   order: responseData.data,
-          //   modalVisible: false
-          // });
           store.dispatch({
             type: 'DELETE_ORDER',
             orderid: orderid

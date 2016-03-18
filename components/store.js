@@ -6,16 +6,21 @@ const createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 
 const tasks = (state = {}, action) => {
   switch (action.type) {
+    case 'SET_USER':
+      state.user = action.user;
+      return state;
+      break;
+    case 'DELETE_USER':
+      state.user = null;
+      return state;
+      break;
     case 'FETCH_TASKS':
-
       break;
     case 'SET_TASKS':
-      console.log('set tasks');
       state.tasks = action.tasks;
       return state;
       break;
     case 'DELETE_ORDER':
-      console.log(`order to delete: ${action.orderid}`)
       let tasks = state.tasks.filter(function (task) {
         let payment = 0
         console.log(task.orders.map(function(o) {return o.id}));
@@ -38,7 +43,15 @@ const tasks = (state = {}, action) => {
         tasks: tasks
       })
       break;
+    case 'CLEAR_DATA':
+      state = {
+        user: null,
+        tasks: []
+      };
+      return state;
+      break;
     default:
+      return state
   }
 }
 

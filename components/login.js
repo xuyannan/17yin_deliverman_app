@@ -10,15 +10,16 @@ import React, {
   AsyncStorage
 } from 'react-native';
 
-var Base64 = require('base-64')
-var Config = require('../config')
-var Constants = require('../constants')
+var Base64 = require('base-64');
+var Config = require('../config');
+var Constants = require('../constants');
+var store = require('./store');
 
 var Login = React.createClass({
   getInitialState: function() {
     return {
-      mobile: '18600000009',
-      password: '111111'
+      mobile: '',
+      password: ''
     }
   },
   render: function() {
@@ -61,6 +62,10 @@ var Login = React.createClass({
         user.token = token;
         this.props.onUserLogin(user);
         AsyncStorage.setItem(Constants.STORAGE_USER_KEY, JSON.stringify(user))
+        store.dispatch({
+          type: 'SET_USER',
+          user: user
+        })
         // this.loadTasks();
       })
       .done();

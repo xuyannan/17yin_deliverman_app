@@ -12,6 +12,7 @@ var Config = require('../../config');
 var Icon = require('react-native-vector-icons/FontAwesome');
 var NavigationBar = require('react-native-navbar');
 var moment = require('moment')
+var yinStyles = require('../../style/style')
 
 module.exports = React.createClass({
   getInitialState: function () {
@@ -60,11 +61,21 @@ module.exports = React.createClass({
             <Icon name="chevron-right" size={32} onPress={this.goToNextDate}/>
           </View>
           <View style={styles.balance}><Text style={{fontSize: 64, fontWeight: "bold"}}>{this.state.balance.cash_income}</Text></View>
+          <View style={{marginTop: 8,justifyContent: 'center',alignItems: 'center'}}>
+          <Icon.Button  name="refresh" backgroundColor="#ccc" onPress={() => this.goToDate(this.state.date)}>
+            刷新
+          </Icon.Button>
+          </View>
         </View>
       )
     } else {
       return (
-        <View><Text>Loading</Text></View>
+        <View style={{flex: 1}}>
+        <NavigationBar
+          title={{title: '对账'}}
+          leftButton={{title: ''}} />
+        <View style={yinStyles.centered}><Text><Icon name="refresh" size={16}/> 加载中，请稍候</Text></View>
+        </View>
       )
     }
   },
