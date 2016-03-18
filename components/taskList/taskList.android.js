@@ -7,7 +7,8 @@ import React, {
   Button,
   AlertIOS,
   Navigator,
-  TouchableHighlight
+  TouchableHighlight,
+  TouchableOpacity
 } from 'react-native';
 var Config = require('../../config');
 var Order = require('../order/order.android');
@@ -17,6 +18,7 @@ var ModalBox  = require('react-native-modalbox');
 var OrderProcess = require('../orderProcessForm/orderProcessForm.android')
 var store = require('../store')
 var yinStyles = require('../../style/style');
+var Communications = require('react-native-communications');
 
 module.exports = React.createClass({
   getInitialState: function () {
@@ -40,6 +42,21 @@ module.exports = React.createClass({
       })
     });
   },
+  renderNaviHeader: function () {
+    // var _this = this;
+    // var rightButtonConfig = {
+    //   title: '刷新',
+    //   handler: function onNext() {
+    //     _this.loadTasks(_this.props.token)
+    //   }
+    // };
+    return (
+      <NavigationBar
+        title={{title: '待送订单'}}
+        rightButton={{title: '刷新', handler: ()=> this.loadTasks(this.props.token)}}
+      />
+    )
+  },
   render: function() {
     let _this = this
     let taskNaviRenderScene = function (route, navigator) {
@@ -59,9 +76,7 @@ module.exports = React.createClass({
     if (this.state.loading) {
       return (
         <View ref="container" style={{flex: 1}}>
-          <NavigationBar
-            title={{title: '待送订单'}}
-            rightButton={{title: ''}} />
+          {this.renderNaviHeader()}
           <View style={yinStyles.centered}><Text><Icon name="refresh" size={16}/> 加载中，请稍候</Text></View>
         </View>
 
@@ -69,9 +84,7 @@ module.exports = React.createClass({
     } else if (!this.state.tasks || this.state.tasks.length == 0) {
       return (
         <View ref="container" style={{flex: 1}}>
-          <NavigationBar
-            title={{title: '待送订单'}}
-            rightButton={{title: ''}} />
+          {this.renderNaviHeader()}
           <View style={yinStyles.centered}>
             <Text><Icon name="coffee" size={16}/> 没有订单，休息一会吧</Text>
             <View style={{marginTop: 8}}>
@@ -93,6 +106,7 @@ module.exports = React.createClass({
 
   },
   loadTasks: function (token) {
+    console.log(token);
     var _this = this;
     _this.setState({
       loading: true
@@ -138,9 +152,7 @@ module.exports = React.createClass({
     this.state.dataSource = dataSource.cloneWithRows(this.state.tasks)
     return (
       <View ref="container" style={{flex: 1}}>
-        <NavigationBar
-          title={{title: '待送订单'}}
-          rightButton={{title: ''}} />
+        {this.renderNaviHeader()}
         <View ref={"view"} style={styles.container}>
           <ListView
           dataSource={this.state.dataSource}
@@ -176,14 +188,16 @@ module.exports = React.createClass({
           <View style={styles.merchantTitle}>
             <View style={styles.merchateTitleLeft}>
               <Text style={styles.merchantName}>{task.merchant.name}</Text>
-              <Text><Icon name="mobile" size={16}/> {task.merchant.mobile}</Text>
+              <TouchableOpacity onPress={() => console.log('dial')}>
+                <Text><Icon name="mobile" size={16}/> {task.merchant.mobile}</Text>
+              </TouchableOpacity>
             </View>
             <Text style={styles.price}>{`${task.orders.length}单 ${task.payment}元`}</Text>
           </View>
-          <Text><Icon name="map-marker" size={16}/> {task.merchant.address}</Text>
+          <Text><Icon name={task.merchant.coordinate ? "map-marker" : "question-circle"} size={16}/> {task.merchant.address}</Text>
           <View style={{flexDirection: "row",justifyContent: "flex-end"}}>
-            <TouchableHighlight onPress={()=>_this.toggleOrderList(task.merchant.id)} underlayColor='#eee'>
-              <Text style={styles.buttonText}>{_this.state.showOrderListConfig[task.merchant.id] ? '收起': '展开'}</Text>
+            <TouchableHighlight onPress={()=>_this.toggleOrderList(task.merchant.id)} underlayColor='#eee' style={{borderWidth: 1, borderColor: "#eee", borderRadius: 2, padding: 2}}>
+              <Text>{_this.state.showOrderListConfig[task.merchant.id] ? '- 收起': '+ 展开'}</Text>
             </TouchableHighlight>
           </View>
         </View>
@@ -238,7 +252,8 @@ var styles = StyleSheet.create({
   },
   merchant: {
     borderBottomWidth: 1,
-    borderBottomColor: '#eee'
+    borderBottomColor: '#eee',
+    paddingBottom:4
   },
   merchantTitle: {
     flexDirection: 'row',

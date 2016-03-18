@@ -6,12 +6,14 @@ import React, {
   Alert,
   TextInput,
   TouchableHighlight,
-  Platform
+  Platform,
+  BackAndroid
 } from 'react-native';
 var Icon = require('react-native-vector-icons/FontAwesome');
 var NavigationBar = require('react-native-navbar');
 var Config = require('../../config');
 var store = require('../store');
+
 module.exports = React.createClass({
   getInitialState: function () {
     return {
@@ -19,6 +21,12 @@ module.exports = React.createClass({
       optType: this.props['optType'],
       reason: ''
     }
+  },
+  componentDidMount: function () {
+    BackAndroid.addEventListener('hardwareBackPress', () => {
+      this.closeModal();
+      return true;
+    });
   },
   render: function() {
     var orderStatus = {

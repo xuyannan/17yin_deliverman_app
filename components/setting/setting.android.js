@@ -15,7 +15,7 @@ var Icon = require('react-native-vector-icons/FontAwesome');
 var NavigationBar = require('react-native-navbar');
 var yinStyles = require('../../style/style');
 var Constants = require('../../constants');
-var store = require('../store')
+var store = require('../store');
 
 module.exports = React.createClass({
   getInitialState: function () {

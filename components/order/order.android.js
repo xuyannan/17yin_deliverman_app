@@ -176,7 +176,7 @@ module.exports = React.createClass({
               style={styles.listView}
               dataSource={dataSource}
               renderRow={function(log) { return (
-                <View style={styles.log}><Text style={[styles.fontColorGray]}>{log.content}</Text></View>
+                <View style={styles.log}><Text style={[styles.fontColorGray]}>{log.created_at.substring(5, log.created_at.length)} {log.operator} {log.content} {log.extra&&log.extra.message}</Text></View>
               )}}
             >
             </ListView>
