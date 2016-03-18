@@ -18,6 +18,19 @@ var Constants = require('../../constants');
 var store = require('../store')
 
 module.exports = React.createClass({
+  getInitialState: function () {
+    return {
+      user: {name: ''}
+    }
+  },
+  componentDidMount: function () {
+    var _this = this
+    AsyncStorage.getItem(Constants.STORAGE_USER_KEY).then(function (res) {
+      _this.setState({
+        user: JSON.parse(res)
+      })
+    }).done();
+  },
   render: function () {
     return (
       <View style={{flex: 1}}>
@@ -25,6 +38,9 @@ module.exports = React.createClass({
           title={{title: '设置'}}
           rightButton={{title: ''}} />
         <View>
+          <View style={yinStyles.menuItem}>
+            <Text>Hello {this.state.user.name}</Text>
+          </View>
           <TouchableHighlight onPress={this.logout} underlayColor='#eee' style={yinStyles.menuItem}>
             <Text><Icon name="sign-out" size={16}/> 退出当前账号</Text>
           </TouchableHighlight>
