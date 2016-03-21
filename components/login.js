@@ -58,7 +58,7 @@ var Login = React.createClass({
       })
       .then((response) => (response.json()))
       .then(responseData => {
-        var user = responseData.data;
+        var user = Object.assign({}, responseData.data);
         user.token = token;
         this.props.onUserLogin(user);
         AsyncStorage.setItem(Constants.STORAGE_USER_KEY, JSON.stringify(user))

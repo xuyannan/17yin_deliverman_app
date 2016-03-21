@@ -5,7 +5,7 @@ import React, {
   View,
   ListView,
   Button,
-  AlertIOS,
+  Alert,
   Navigator,
   TouchableHighlight,
   TouchableOpacity
@@ -19,6 +19,8 @@ var OrderProcess = require('../orderProcessForm/orderProcessForm.android')
 var store = require('../store')
 var yinStyles = require('../../style/style');
 var Communications = require('react-native-communications');
+var Map = require('../map/map.android');
+// var Interceptor = require('../interceptor');
 
 module.exports = React.createClass({
   getInitialState: function () {
@@ -69,6 +71,11 @@ module.exports = React.createClass({
             <OrderProcess order={route.order} optType={route.optType} navigator={navigator} token={route.token}/>
           )
           break;
+          case 'map':
+            return (
+              <Map merchant={route.merchant}/>
+            )
+            break;
         default:
 
       }
@@ -103,7 +110,13 @@ module.exports = React.createClass({
         />
       )
     }
-
+  },
+  openMap: function(merchant) {
+    var navigator = this.refs.navigator;
+    navigator.push({
+      id: 'map',
+      merchant: merchant
+    })
   },
   loadTasks: function (token) {
     console.log(token);
@@ -111,6 +124,7 @@ module.exports = React.createClass({
     _this.setState({
       loading: true
     })
+
     fetch(Config.API_ROOT + 'deliveryman/orders', {
       headers: {
         'Authorization': 'Basic ' + token
@@ -123,6 +137,10 @@ module.exports = React.createClass({
         _this.setState({
           loading: false
         })
+        if (typeof(responseData.data) === 'undefined') {
+          Alert.alert('提示', '出现错误，请确认您有访问权限')
+          return false
+        }
         if (typeof(responseData.data.tasks) === 'undefined') {
           Alert.alert('提示', '获取订单失败');
         } else {
@@ -139,7 +157,6 @@ module.exports = React.createClass({
             tasks: responseData.data.tasks
           })
         }
-
       })
       .done();
   },
@@ -194,7 +211,7 @@ module.exports = React.createClass({
             </View>
             <Text style={styles.price}>{`${task.orders.length}单 ${task.payment}元`}</Text>
           </View>
-          <Text><Icon name={task.merchant.coordinate ? "map-marker" : "question-circle"} size={16}/> {task.merchant.address}</Text>
+          <TouchableHighlight onPress={()=> _this.openMap(task.merchant)}><Text><Icon name={task.merchant.coordinate ? "map-marker" : "question-circle"} size={16}/> {task.merchant.address}</Text></TouchableHighlight>
           <View style={{flexDirection: "row",justifyContent: "flex-end"}}>
             <TouchableHighlight onPress={()=>_this.toggleOrderList(task.merchant.id)} underlayColor='#eee' style={{borderWidth: 1, borderColor: "#eee", borderRadius: 2, padding: 2}}>
               <Text>{_this.state.showOrderListConfig[task.merchant.id] ? '- 收起': '+ 展开'}</Text>

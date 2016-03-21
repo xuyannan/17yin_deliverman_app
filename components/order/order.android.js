@@ -236,7 +236,6 @@ module.exports = React.createClass({
         token: _this.props['token']
       })
     }
-
   }
 });
 
