@@ -5,6 +5,8 @@ import React, {
   Alert,
   WebView
 } from 'react-native';
+
+import BaiduMap from 'baidumapkit';
 var Config = require('../../config')
 
 module.exports = React.createClass({
@@ -14,15 +16,12 @@ module.exports = React.createClass({
     console.log(url);
     return (
       <View style={{flex: 1}}>
-        <WebView
-          ref="map-container"
-          automaticallyAdjustContentInsets={false}
-          style={{width: 700}}
-          url={url}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          decelerationRate="normal"
-          scalesPageToFit={false}
+        <BaiduMap
+          style={{flex: 1}}
+          maker={[
+            [39.963175, 116.440244]
+          ]}
+          mode={1}
         />
       </View>
     )

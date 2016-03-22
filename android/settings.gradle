@@ -1,3 +1,4 @@
 rootProject.name = 'delivermanApp'
 
-include ':app'
+include ':baidumapkit', ':app'
+project(':baidumapkit').projectDir = new File(rootProject.projectDir, '../node_modules/baidumapkit')

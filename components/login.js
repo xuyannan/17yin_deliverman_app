@@ -40,7 +40,7 @@ var Login = React.createClass({
         ></TextInput>
         <View style={styles.buttonContainer}>
         <TouchableHighlight style={styles.submitButton} onPress={this.submit} underlayColor='#42e47e'>
-          <Text style={styles.buttonText}>提交</Text>
+          <Text style={styles.buttonText}>登录</Text>
         </TouchableHighlight>
         </View>
       </View>

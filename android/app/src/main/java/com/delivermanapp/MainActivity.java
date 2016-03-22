@@ -1,11 +1,15 @@
 package com.delivermanapp;
 
+import android.os.Bundle;
+
+import com.baidu.mapapi.SDKInitializer;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 
 import java.util.Arrays;
 import java.util.List;
+import com.bee.baidumapview.*;
 
 public class MainActivity extends ReactActivity {
 
@@ -16,6 +20,12 @@ public class MainActivity extends ReactActivity {
     @Override
     protected String getMainComponentName() {
         return "delivermanApp";
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SDKInitializer.initialize(getApplicationContext());
     }
 
     /**
@@ -34,7 +44,8 @@ public class MainActivity extends ReactActivity {
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
-        new MainReactPackage()
+        new MainReactPackage(),
+        new BaiduMapReactPackage(this)
       );
     }
 }
