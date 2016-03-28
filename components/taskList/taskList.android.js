@@ -73,7 +73,7 @@ module.exports = React.createClass({
           break;
           case 'map':
             return (
-              <Map merchant={route.merchant}/>
+              <Map merchant={route.merchant} token={route.token} navigator={navigator}/>
             )
             break;
         default:
@@ -115,7 +115,9 @@ module.exports = React.createClass({
     var navigator = this.refs.navigator;
     navigator.push({
       id: 'map',
-      merchant: merchant
+      merchant: merchant,
+      token: this.props.token,
+      navigator: navigator
     })
   },
   loadTasks: function (token) {
@@ -211,7 +213,7 @@ module.exports = React.createClass({
             </View>
             <Text style={styles.price}>{`${task.orders.length}单 ${task.payment}元`}</Text>
           </View>
-          <TouchableHighlight onPress={()=> _this.openMap(task.merchant)}><Text><Icon name={task.merchant.coordinate ? "map-marker" : "question-circle"} size={16}/> {task.merchant.address}</Text></TouchableHighlight>
+          <TouchableHighlight onPress={()=> _this.openMap(task.merchant)} underlayColor='#ccc'><Text><Icon name={task.merchant.coordinate ? "map-marker" : "question-circle"} size={16}/> {task.merchant.address}</Text></TouchableHighlight>
           <View style={{flexDirection: "row",justifyContent: "flex-end"}}>
             <TouchableHighlight onPress={()=>_this.toggleOrderList(task.merchant.id)} underlayColor='#eee' style={{borderWidth: 1, borderColor: "#eee", borderRadius: 2, padding: 2}}>
               <Text>{_this.state.showOrderListConfig[task.merchant.id] ? '- 收起': '+ 展开'}</Text>
