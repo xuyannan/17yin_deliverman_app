@@ -8,7 +8,9 @@ import React, {
   Alert,
   Navigator,
   TouchableHighlight,
-  TouchableOpacity
+  TouchableOpacity,
+  TouchableNativeFeedback,
+  Clipboard
 } from 'react-native';
 var Config = require('../../config');
 var Order = require('../order/order.android');
@@ -127,7 +129,7 @@ module.exports = React.createClass({
       loading: true
     })
 
-    fetch(Config.API_ROOT + 'deliveryman/orders', {
+    fetch(Config.API_ROOT + 'deliveryman/orders?date=2016-03-29', {
       headers: {
         'Authorization': 'Basic ' + token
       }
@@ -194,6 +196,10 @@ module.exports = React.createClass({
       showOrderListConfig: _config
     })
   },
+  async _setClipboardContent(str){
+    Clipboard.setString(str);
+    Alert.alert('提示','内容已复制到剪贴板');
+  },
   renderTask: function (task) {
     var orders = new ListView.DataSource({
       rowHasChanged: (row1, row2) => {row1 !== row2;}
@@ -206,14 +212,16 @@ module.exports = React.createClass({
         <View style={styles.merchant}>
           <View style={styles.merchantTitle}>
             <View style={styles.merchateTitleLeft}>
-              <Text style={styles.merchantName}>{task.merchant.name}</Text>
+              <TouchableHighlight onLongPress={()=> _this._setClipboardContent(task.merchant.name)} onPress={()=> _this.openMap(task.merchant)} underlayColor='#ccc'>
+                <View><Text style={styles.merchantName}>{task.merchant.name}</Text></View>
+              </TouchableHighlight>
               <TouchableOpacity onPress={() => console.log('dial')}>
                 <Text><Icon name="mobile" size={16}/> {task.merchant.mobile}</Text>
               </TouchableOpacity>
             </View>
             <Text style={styles.price}>{`${task.orders.length}单 ${task.payment}元`}</Text>
           </View>
-          <TouchableHighlight onPress={()=> _this.openMap(task.merchant)} underlayColor='#ccc'><Text><Icon name={task.merchant.coordinate ? "map-marker" : "question-circle"} size={16}/> {task.merchant.address}</Text></TouchableHighlight>
+          <TouchableHighlight onLongPress={()=> _this._setClipboardContent(task.merchant.address)} onPress={()=> _this.openMap(task.merchant)} underlayColor='#ccc'><View><Text><Icon name={task.merchant.coordinate ? "map-marker" : "question-circle"} size={16}/> {task.merchant.address}</Text></View></TouchableHighlight>
           <View style={{flexDirection: "row",justifyContent: "flex-end"}}>
             <TouchableHighlight onPress={()=>_this.toggleOrderList(task.merchant.id)} underlayColor='#eee' style={{borderWidth: 1, borderColor: "#eee", borderRadius: 2, padding: 2}}>
               <Text>{_this.state.showOrderListConfig[task.merchant.id] ? '- 收起': '+ 展开'}</Text>

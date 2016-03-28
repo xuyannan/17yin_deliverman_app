@@ -24,8 +24,9 @@ import TabNavigator from 'react-native-tab-navigator';
 var Balance = require('../components/balance/balance.android');
 var History = require('../components/history/history.android');
 var Setting = require('../components/setting/setting.android');
+var MerchantMap = require('../components/merchants/merchant.map.android');
 import { connect } from 'react-redux';
-var store = require('../components/store')
+var store = require('../components/store');
 
 var _navigator;
 // class delivermanApp extends Component {

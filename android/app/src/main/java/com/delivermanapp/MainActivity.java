@@ -20,6 +20,7 @@ import java.util.List;
 public class MainActivity extends ReactActivity {
 
     public BDLocation currentLocation = null;
+    LocationClient mLocationClient = new LocationClient(this);
     /**
      * Returns the name of the main component registered from JavaScript.
      * This is used to schedule rendering of the component.
@@ -34,7 +35,7 @@ public class MainActivity extends ReactActivity {
         super.onCreate(savedInstanceState);
         SDKInitializer.initialize(getApplicationContext());
 
-        LocationClient mLocationClient = new LocationClient(this);
+
         LocationClientOption option = new LocationClientOption();
         mLocationClient.registerLocationListener(new MyLocationListener());
         option.setOpenGps(true);
@@ -54,6 +55,12 @@ public class MainActivity extends ReactActivity {
             editor.putString("LAT", bdLocation.getLatitude() + "");
             editor.commit();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mLocationClient.stop();
     }
 
     /**
