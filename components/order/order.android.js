@@ -23,7 +23,8 @@ module.exports = React.createClass({
       modalVisible: false,
       optType: 'not_arrived', // 订单操作类型
       reason: '',
-      showTracelogList: false
+      showTracelogList: false,
+      processing: false
     }
   },
   componentDidMount: function () {
@@ -74,8 +75,11 @@ module.exports = React.createClass({
   },
   submitOrder: function(orderid, action, memo) {
     var _this = this;
-    var url = 'deliveryman/orders/' + orderid + '/procedure/' + action
-
+    var url = 'deliveryman/orders/' + orderid + '/procedure/' + action;
+    if (this.state.processing) {
+      return false;
+    }
+    this.setState({processing: true});
     fetch(Config.API_ROOT + url, {
         method: 'POST',
         headers: {
@@ -97,11 +101,13 @@ module.exports = React.createClass({
             type: 'DELETE_ORDER',
             orderid: orderid
           })
-          _this.closeModal()
+          _this.closeModal();
         }
+        _this.setState({processing: false});
       })
       .catch((error) => {
-        console.log(error)
+        console.log(error);
+        _this.setState({processing: false});
       })
       .done();
   },
@@ -220,6 +226,9 @@ module.exports = React.createClass({
     }
   },
   openModal: function(optType) {
+    if (this.state.processing) {
+      return false;
+    }
     let _this = this
     if (Platform.OS === 'ios') {
       this.setState({

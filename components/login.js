@@ -7,7 +7,8 @@ import React, {
   View,
   AlertIOS,
   Image,
-  AsyncStorage
+  AsyncStorage,
+  Alert
 } from 'react-native';
 
 var Base64 = require('base-64');
@@ -19,29 +20,46 @@ var Login = React.createClass({
   getInitialState: function() {
     return {
       mobile: '',
-      password: ''
+      password: '',
+      processig: false
     }
   },
   render: function() {
+    let _this = this;
+    let _renderBotton = function () {
+      if (_this.state.processig) {
+        return (
+          <TouchableHighlight style={[styles.button, styles.disabledButton]} underlayColor='#42e47e'>
+            <Text style={styles.buttonText}>处理中...</Text>
+          </TouchableHighlight>
+        )
+      } else {
+        return (
+          <TouchableHighlight style={[styles.button, styles.submitButton]} onPress={_this.submit} underlayColor='#42e47e'>
+            <Text style={styles.buttonText}>登录</Text>
+          </TouchableHighlight>
+        )
+      }
+    };
     return (
       <View style={styles.container}>
         <Image source={require('../img/logo.png')}/>
         <TextInput style={styles.textInput}
           onChangeText={(text) => this.setState({mobile: text})}
           value={this.state.mobile}
+          placeholder="请输入手机号码"
+          placeholderTextColor="#ccc"
         ></TextInput>
 
         <TextInput style={styles.textInput}
           onChangeText={(text) => this.setState({password: text})}
-          placeholderText="请输入密码"
+          placeholder="请输入密码"
           placeholderTextColor="#ccc"
           secureTextEntry={1==1}
           value={this.state.password}
         ></TextInput>
         <View style={styles.buttonContainer}>
-        <TouchableHighlight style={styles.submitButton} onPress={this.submit} underlayColor='#42e47e'>
-          <Text style={styles.buttonText}>登录</Text>
-        </TouchableHighlight>
+        {_renderBotton()}
         </View>
       </View>
     )
@@ -50,7 +68,11 @@ var Login = React.createClass({
     this.login()
   },
   login: function () {
-    let token = Base64.encode(this.state.mobile + ':' + this.state.password)
+    let token = Base64.encode(this.state.mobile + ':' + this.state.password);
+    let authority = {
+      deliveryman: true
+    };
+    this.setState({processig: true});
     fetch(Config.API_ROOT + 'login', {
       headers: {
         'Authorization': 'Basic ' + token
@@ -58,15 +80,24 @@ var Login = React.createClass({
       })
       .then((response) => (response.json()))
       .then(responseData => {
+        if (typeof(responseData.data) === 'undefined') {
+          Alert.alert('提示', '登录失败，请确认您的用户名和密码');
+          this.setState({processig: false});
+          return false;
+        }
         var user = Object.assign({}, responseData.data);
-        user.token = token;
-        this.props.onUserLogin(user);
-        AsyncStorage.setItem(Constants.STORAGE_USER_KEY, JSON.stringify(user))
-        store.dispatch({
-          type: 'SET_USER',
-          user: user
-        })
-        // this.loadTasks();
+        if (user && authority[user.state]) {
+          user.token = token;
+          this.props.onUserLogin(user);
+          AsyncStorage.setItem(Constants.STORAGE_USER_KEY, JSON.stringify(user))
+          store.dispatch({
+            type: 'SET_USER',
+            user: user
+          })
+        } else {
+          Alert.alert('提示', 'sorry，您暂时没有访问权限');
+        }
+        this.setState({processig: false});
       })
       .done();
   }
@@ -101,7 +132,7 @@ var styles = StyleSheet.create({
 		alignSelf: 'stretch',
 		justifyContent: 'center'
 	},
-  submitButton: {
+  button: {
     marginTop: 20,
     height: 49,
 		backgroundColor: '#4cae4c',
@@ -109,6 +140,12 @@ var styles = StyleSheet.create({
 		alignSelf: 'stretch',
     alignItems: 'center',
     borderRadius: 2
+  },
+  submitButton: {
+		backgroundColor: '#4cae4c',
+  },
+  disabledButton: {
+    backgroundColor: '#CCC'
   },
   buttonText: {
 		fontSize: 18,

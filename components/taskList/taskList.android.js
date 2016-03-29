@@ -123,13 +123,12 @@ module.exports = React.createClass({
     })
   },
   loadTasks: function (token) {
-    console.log(token);
     var _this = this;
     _this.setState({
       loading: true
     })
 
-    fetch(Config.API_ROOT + 'deliveryman/orders?date=2016-03-29', {
+    fetch(Config.API_ROOT + 'deliveryman/orders', {
       headers: {
         'Authorization': 'Basic ' + token
       }
@@ -206,6 +205,7 @@ module.exports = React.createClass({
     });
     orders = orders.cloneWithRows(task.orders);
     var _this = this
+    // task.merchant.coordinate = null;
 
     var renderMerchant = function () {
       return (
@@ -215,13 +215,13 @@ module.exports = React.createClass({
               <TouchableHighlight onLongPress={()=> _this._setClipboardContent(task.merchant.name)} onPress={()=> _this.openMap(task.merchant)} underlayColor='#ccc'>
                 <View><Text style={styles.merchantName}>{task.merchant.name}</Text></View>
               </TouchableHighlight>
-              <TouchableOpacity onPress={() => console.log('dial')}>
+              <TouchableOpacity onPress={() => Communications.phonecall(task.merchant.mobile, true)}>
                 <Text><Icon name="mobile" size={16}/> {task.merchant.mobile}</Text>
               </TouchableOpacity>
             </View>
             <Text style={styles.price}>{`${task.orders.length}单 ${task.payment}元`}</Text>
           </View>
-          <TouchableHighlight onLongPress={()=> _this._setClipboardContent(task.merchant.address)} onPress={()=> _this.openMap(task.merchant)} underlayColor='#ccc'><View><Text><Icon name={task.merchant.coordinate ? "map-marker" : "question-circle"} size={16}/> {task.merchant.address}</Text></View></TouchableHighlight>
+          <TouchableHighlight onLongPress={()=> _this._setClipboardContent(task.merchant.address)} onPress={()=> _this.openMap(task.merchant)} underlayColor='#ccc'><View><Text style={{fontSize: 18}}><Icon name={task.merchant.coordinate ? "map-marker" : "question-circle"} size={16}/> {task.merchant.address}</Text></View></TouchableHighlight>
           <View style={{flexDirection: "row",justifyContent: "flex-end"}}>
             <TouchableHighlight onPress={()=>_this.toggleOrderList(task.merchant.id)} underlayColor='#eee' style={{borderWidth: 1, borderColor: "#eee", borderRadius: 2, padding: 2}}>
               <Text>{_this.state.showOrderListConfig[task.merchant.id] ? '- 收起': '+ 展开'}</Text>
@@ -294,7 +294,8 @@ var styles = StyleSheet.create({
   },
   merchantName: {
     fontSize: 20,
-    marginRight: 8
+    marginRight: 8,
+    fontWeight: "bold"
   },
   price: {
     fontSize: 20,

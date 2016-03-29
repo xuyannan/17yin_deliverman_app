@@ -19,7 +19,8 @@ module.exports = React.createClass({
     return {
       order: this.props['order'],
       optType: this.props['optType'],
-      reason: ''
+      reason: '',
+      processing: false
     }
   },
   componentDidMount: function () {
@@ -89,6 +90,10 @@ module.exports = React.createClass({
     this.props.navigator.pop();
   },
   submitOrder: function(orderid, action, memo) {
+    if (this.state.processing) {
+      return false;
+    }
+    this.setState({processing: true});
     var _this = this;
     var url = 'deliveryman/orders/' + orderid + '/procedure/' + action
 
@@ -115,9 +120,11 @@ module.exports = React.createClass({
           });
           _this.closeModal();
         }
+        _this.setState({processing: false});
       })
       .catch((error) => {
         console.log(error)
+        _this.setState({processing: false});
       })
       .done();
   }
