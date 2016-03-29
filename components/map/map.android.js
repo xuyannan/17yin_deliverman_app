@@ -21,7 +21,8 @@ module.exports = React.createClass({
       marking: false,
       newCoordinate: null,
       processing: false,
-      myLocation: null
+      myLocation: null,
+      startRequestLocation: false
     }
   },
   componentWillMount: function () {
@@ -36,7 +37,8 @@ module.exports = React.createClass({
     DeviceEventEmitter.addListener('onGetMyLocation', function(e: Event) {
       console.log('get my location', e);
       _this.setState({
-        myLocation: e
+        myLocation: e,
+        startRequestLocation: false
       })
     });
   },
@@ -61,6 +63,14 @@ module.exports = React.createClass({
       this.props.navigator.pop();
       return true;
     });
+  },
+  requestLocation: function () {
+    if (this.state.startRequestLocation) {
+      return false;
+    }
+    this.setState({
+      startRequestLocation: true
+    })
   },
   setMarkable: function () {
     let merchant = this.props.merchant;
@@ -188,9 +198,30 @@ module.exports = React.createClass({
     }
   },
   renderButtons: function () {
+    let _this = this;
+    let _renderLocationButton = function () {
+      if (_this.state.startRequestLocation) {
+        return (
+          <View style={styles.buttonContainer}>
+            <Icon.Button name="spinner" backgroundColor="#ccc">
+              定位
+            </Icon.Button>
+          </View>
+        )
+      } else {
+        return (
+          <View style={styles.buttonContainer}>
+            <Icon.Button name="crosshairs" backgroundColor="#157254" onPress={() => _this.requestLocation()}>
+              定位
+            </Icon.Button>
+          </View>
+        )
+      }
+    }
     if (!this.state.marking) {
       return (
         <View style={styles.buttons}>
+          {_renderLocationButton()}
           <View style={styles.buttonContainer}>
             <Icon.Button name="thumb-tack" backgroundColor="#1b809e" onPress={() => this.setMarkable()}>
               标注位置
@@ -200,7 +231,9 @@ module.exports = React.createClass({
       )
     } else {
       return (
+
         <View style={styles.buttons}>
+          {_renderLocationButton()}
           <View style={styles.buttonContainer}>
           <Icon.Button name="check" backgroundColor="#5cb85c" onPress={() => this.saveCoodinate()}>
             保存
@@ -239,6 +272,7 @@ module.exports = React.createClass({
           mode={1}
           locationEnabled={true}
           showZoomControls={false}
+          startRequestLocation={this.state.startRequestLocation}
           trafficEnabled={true}
         />
       </View>
