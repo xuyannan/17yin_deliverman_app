@@ -23,7 +23,7 @@ const tasks = (state = {}, action) => {
     case 'DELETE_ORDER':
       let tasks = state.tasks.filter(function (task) {
         let payment = 0
-        console.log(task.orders.map(function(o) {return o.id}));
+        // console.log(task.orders.map(function(o) {return o.id}));
         let _orders = task.orders.filter(function (o) {
           if (o.id !== action.orderid) {
             payment += parseFloat(o.price.replace('元', ''))
@@ -49,6 +49,24 @@ const tasks = (state = {}, action) => {
         tasks: []
       };
       return state;
+      break;
+    case 'UPDATE_MERCHANT':
+      let _state = Object.assign({}, state);
+      let merchant = action.merchant;
+      // console.log('action.merchant: ', merchant);
+      let _tasks = _state.tasks.map(function(task) {
+        // console.log(merchant.id, task.merchant.id, merchant.id === task.merchant.id);
+        if (merchant.id === task.merchant.id) {
+          task.merchant = merchant;
+          return task;
+        } else {
+          return task;
+        }
+      })
+      // console.log(_tasks);
+      _state.tasks = _tasks;
+      // console.log(_state.tasks);
+      return _state;
       break;
     default:
       return state

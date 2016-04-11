@@ -6,6 +6,7 @@ import React, {
   Text,
   View,
   Navigator,
+  TouchableNativeFeedback
 } from 'react-native';
 
 var Config = require('../../config');
@@ -56,9 +57,9 @@ module.exports = React.createClass({
             title={{title: '对账'}}
             leftButton={{title: ''}} />
           <View style={styles.dateNavi}>
-            <Icon name="chevron-left" size={32} onPress={this.goToPrevDate}/>
+            <TouchableNativeFeedback onPress={this.goToPrevDate}><View><Icon name="chevron-left" size={32}/></View></TouchableNativeFeedback>
             <Text style={{fontSize: 32}}>{this.state.balance.date}</Text>
-            <Icon name="chevron-right" size={32} onPress={this.goToNextDate}/>
+            <TouchableNativeFeedback onPress={this.goToNextDate}><View><Icon name="chevron-right" size={32}/></View></TouchableNativeFeedback>
           </View>
           <View style={styles.balance}><Text style={{fontSize: 64, fontWeight: "bold"}}>{this.state.balance.cash_income}</Text></View>
           <View style={{marginTop: 8,justifyContent: 'center',alignItems: 'center'}}>

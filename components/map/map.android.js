@@ -12,6 +12,7 @@ import React, {
 import BaiduMap from 'baidumapkit';
 var Config = require('../../config');
 var Icon = require('react-native-vector-icons/FontAwesome');
+var store = require('../store');
 
 module.exports = React.createClass({
   getInitialState: function () {
@@ -22,7 +23,8 @@ module.exports = React.createClass({
       newCoordinate: null,
       processing: false,
       myLocation: null,
-      startRequestLocation: false
+      startRequestLocation: false,
+      trafficEnabled: false
     }
   },
   componentWillMount: function () {
@@ -156,6 +158,13 @@ module.exports = React.createClass({
               markers: [JSON.stringify(_marker)],
               marking: false
             });
+            let _merchant = Object.assign({}, _this.props.merchant);
+            _merchant.coordinate = responseData.data;
+            _this.setState({
+              merchant: _merchant
+            });
+
+            store.dispatch({type: 'UPDATE_MERCHANT', merchant: _merchant});
             Alert.alert('提示', '标注成功');
           }
         })
@@ -217,11 +226,24 @@ module.exports = React.createClass({
           </View>
         )
       }
-    }
+    };
+
+    let _renderTrafficButton =  function () {
+      return (
+
+        <View style={styles.buttonContainer}>
+        <Icon.Button name="road" backgroundColor=  {_this.state.trafficEnabled ? '#ccc' : '#157254'} onPress={() => _this.setState({trafficEnabled: !_this.state.trafficEnabled})}>
+            {_this.state.trafficEnabled ? '关路况' : '查路况'}
+          </Icon.Button>
+        </View>
+
+      );
+    };
     if (!this.state.marking) {
       return (
         <View style={styles.buttons}>
           {_renderLocationButton()}
+          {_renderTrafficButton()}
           <View style={styles.buttonContainer}>
             <Icon.Button name="thumb-tack" backgroundColor="#1b809e" onPress={() => this.setMarkable()}>
               标注位置
@@ -234,6 +256,7 @@ module.exports = React.createClass({
 
         <View style={styles.buttons}>
           {_renderLocationButton()}
+          {_renderTrafficButton()}
           <View style={styles.buttonContainer}>
           <Icon.Button name="check" backgroundColor="#5cb85c" onPress={() => this.saveCoodinate()}>
             保存
@@ -273,7 +296,7 @@ module.exports = React.createClass({
           locationEnabled={true}
           showZoomControls={false}
           startRequestLocation={this.state.startRequestLocation}
-          trafficEnabled={true}
+          trafficEnabled={this.state.trafficEnabled}
         />
       </View>
     )
