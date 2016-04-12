@@ -46,6 +46,8 @@ module.exports = React.createClass({
   },
   componentDidMount: function () {
     let merchant = this.props.merchant;
+    let markers = this.props.markers;
+
     // let coord = [[parseFloat(merchant.coordinate.lat), parseFloat(merchant.coordinate.lng)]];
     let marker = null;
     if (merchant.coordinate) {
@@ -58,8 +60,10 @@ module.exports = React.createClass({
     }
 
     this.setState({
-      markers: merchant.coordinate ? [JSON.stringify(marker)] : null,
-      marker: marker
+      // markers: merchant.coordinate ? [JSON.stringify(marker)] : null,
+      markers: markers.map(function(marker) {return JSON.stringify(marker)}),
+      marker: marker,
+      merchant: merchant
     });
     BackAndroid.addEventListener('hardwareBackPress', () => {
       this.props.navigator.pop();
@@ -77,40 +81,58 @@ module.exports = React.createClass({
   setMarkable: function () {
     let merchant = this.props.merchant;
     Alert.alert('提示', '长按红色位置图标2秒钟后即可拖动。拖动到正确位置后，点击"保存"即可');
-    if (merchant.coordinate) {
-      let m = Object.assign({}, this.state.marker);
-      m.showInfo = false;
-      m.draggable = true;
-      this.setState({
-        markers: [JSON.stringify(m)],
-        marker: m,
-        marking: true
-        // newCoordinate: {lat: parseFloat(merchant.coordinate.lat), lng: parseFloat(merchant.coordinate.lng)}
-      });
-    } else {
-      this.setState({
-        markers: null,
-        marker: null,
-        marking: true
-      });
-    }
-
+    // if (merchant.coordinate) {
+    //   let m = Object.assign({}, this.state.marker);
+    //   m.showInfo = false;
+    //   m.draggable = true;
+    //   this.setState({
+    //     markers: [JSON.stringify(m)],
+    //     marker: m,
+    //     marking: true
+    //     // newCoordinate: {lat: parseFloat(merchant.coordinate.lat), lng: parseFloat(merchant.coordinate.lng)}
+    //   });
+    // } else {
+    //   this.setState({
+    //     markers: null,
+    //     marker: null,
+    //     marking: true
+    //   });
+    // }
+    let _this = this;
+    let markers = this.state.markers;
+    _this.setState({
+      markers: markers.map(function(marker) {
+        let _m = JSON.parse(marker);
+        _m.draggable = _m.merchantId === _this.state.merchant.id;
+        return JSON.stringify(_m);
+      }),
+      marking: true
+    });
   },
   cancelMark: function () {
-    if (this.state.marker) {
-      let m = Object.assign({}, this.state.marker);
-      this.setState({
-        markers: [JSON.stringify(m)],
-        marking: false,
-        marker: m
-      })
-    } else {
-      this.setState({
-        markers: null,
-        marking: false,
-        marker: null
-      })
-    }
+    // if (this.state.marker) {
+    //   let m = Object.assign({}, this.state.marker);
+    //   this.setState({
+    //     markers: [JSON.stringify(m)],
+    //     marking: false,
+    //     marker: m
+    //   })
+    // } else {
+    //   this.setState({
+    //     markers: null,
+    //     marking: false,
+    //     marker: null
+    //   })
+    // }
+    let markers = this.state.markers;
+    this.setState({
+      markers: markers.map(function(marker) {
+        let _m = JSON.parse(marker);
+        _m.draggable = false;
+        return JSON.stringify(_m);
+      }),
+      marking: false
+    });
 
   },
   saveCoodinate: function () {
@@ -139,23 +161,29 @@ module.exports = React.createClass({
           if (responseData.message) {
             Alert.alert('提示', responseData.message + '，请确认是否进行了标注？')
           } else {
-            let _marker;
-            if (_this.state.marker) {
-              _marker = Object.assign({}, _this.state.marker);
-              _marker.coordinate = _this.state.newCoordinate;
-              _marker.draggable = false;
-              _marker.showInfo = true;
-            } else {
-              _marker = {
-                coordinate: _this.state.newCoordinate,
-                info: _this.props.merchant.name,
-                showInfo: true,
-                draggable: false
-              }
-            }
+            // let _marker;
+            // if (_this.state.marker) {
+            //   _marker = Object.assign({}, _this.state.marker);
+            //   _marker.coordinate = _this.state.newCoordinate;
+            //   _marker.draggable = false;
+            //   _marker.showInfo = true;
+            // } else {
+            //   _marker = {
+            //     coordinate: _this.state.newCoordinate,
+            //     info: _this.props.merchant.name,
+            //     showInfo: true,
+            //     draggable: false
+            //   }
+            // }
+            let _markers = _this.statue.markers;
             _this.setState({
-              marker: _marker,
-              markers: [JSON.stringify(_marker)],
+              // marker: _marker,
+              markers: _markers.map(function(marker) {
+                if (marker.merchantId === _this.state.merchant.id) {
+                  marker.coordinate = _this.state.newCoordinate;
+                }
+                return marker;
+              }),
               marking: false
             });
             let _merchant = Object.assign({}, _this.props.merchant);

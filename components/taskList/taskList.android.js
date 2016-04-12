@@ -75,7 +75,7 @@ module.exports = React.createClass({
           break;
           case 'map':
             return (
-              <Map merchant={route.merchant} token={route.token} navigator={navigator}/>
+              <Map merchant={route.merchant} markers={route.markers} token={route.token} navigator={navigator}/>
             )
             break;
         default:
@@ -115,9 +115,39 @@ module.exports = React.createClass({
   },
   openMap: function(merchant) {
     var navigator = this.refs.navigator;
+    var markers = [];
+    this.state.tasks.map(function (task) {
+      console.log(task.merchant.name);
+      if (task.merchant.coordinate) {
+        markers.push({
+          coordinate: {
+            lat: task.merchant.coordinate.lat,
+            lng: task.merchant.coordinate.lng
+          },
+          info: task.merchant.name,
+          merchantId: task.merchant.id,
+          draggable: false,
+          selected: task.merchant.id === merchant.id
+        });
+      }
+    });
+    // 如果没有座标，初始化一个
+    console.log('merchant.coordinate', merchant.coordinate === null);
+    if (merchant.coordinate === null) {
+      markers.push({
+        coordinate: 'null',
+        merchantId: merchant.id,
+        info: merchant.name,
+        draggable: false,
+        selected: true
+      })
+    }
+    // console.log('merchant.coordinate', markers, merchant.coordinate);
+    console.log('all markers', markers);
     navigator.push({
       id: 'map',
       merchant: merchant,
+      markers: markers,
       token: this.props.token,
       navigator: navigator
     })
