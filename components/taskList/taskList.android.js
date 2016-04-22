@@ -243,14 +243,14 @@ module.exports = React.createClass({
           <View style={styles.merchantTitle}>
             <View style={styles.merchateTitleLeft}>
               <TouchableHighlight onLongPress={()=> _this._setClipboardContent(task.merchant.name)} onPress={()=> _this.openMap(task.merchant)} underlayColor='#ccc'>
-                <View><Text style={styles.merchantName}>{task.merchant.name}</Text></View>
+                <View style={{flexDirection: 'row'}}><Text style={[styles.merchantName, {color: '#22a1c4'}]}>{task.merchant.fake_name}</Text><Text style={styles.merchantName}>{task.merchant.name}</Text></View>
               </TouchableHighlight>
-              <TouchableOpacity onPress={() => Communications.phonecall(task.merchant.mobile, true)}>
-                <Text><Icon name="mobile" size={16}/> {task.merchant.mobile}</Text>
-              </TouchableOpacity>
             </View>
             <Text style={styles.price}>{`${task.orders.length}单 ${task.payment}元`}</Text>
           </View>
+          <TouchableOpacity onPress={() => Communications.phonecall(task.merchant.mobile, true)}>
+            <Text><Icon name="mobile" size={16}/> {task.merchant.mobile}</Text>
+          </TouchableOpacity>
           <TouchableHighlight onLongPress={()=> _this._setClipboardContent(task.merchant.address)} onPress={()=> _this.openMap(task.merchant)} underlayColor='#ccc'><View><Text style={{fontSize: 18}}><Icon name={task.merchant.coordinate ? "map-marker" : "question-circle"} size={16}/> {task.merchant.address}</Text></View></TouchableHighlight>
           <View style={{flexDirection: "row",justifyContent: "flex-end"}}>
             <TouchableHighlight onPress={()=>_this.toggleOrderList(task.merchant.id)} underlayColor='#eee' style={{borderWidth: 1, borderColor: "#eee", borderRadius: 2, padding: 2}}>
