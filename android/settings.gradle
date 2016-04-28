@@ -1,4 +1,5 @@
 rootProject.name = 'delivermanApp'
 
-include ':baidumapkit', ':app'
+include ':baidumapkit', ':app'//, ':react-native-image-picker'
 project(':baidumapkit').projectDir = new File(rootProject.projectDir, '../node_modules/baidumapkit')
+//project(':react-native-image-picker').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-picker/android')

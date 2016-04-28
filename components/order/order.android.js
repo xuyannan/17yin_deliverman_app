@@ -193,8 +193,26 @@ module.exports = React.createClass({
       }
 
     };
+    let borderStyle = (function(order){
+      if (order.workflow_state === 'finished') {
+        return styles.orderFinished;
+      } else if (order.memo) {
+        return styles.orderHilight;
+      } else {
+        return styles.orderNormal
+      }
+    })(this.state.order);
+
+    var renderMemo = function() {
+      if (_this.state.order.memo) {
+        return (
+          <View><Text style={{color: '#e35b5a'}}>{_this.state.order.memo}</Text></View>
+        )
+      }
+    };
+
     return (
-      <View style={[styles.order, (this.state.order.workflow_state === 'finished') && styles.orderFinished]}>
+      <View style={[styles.order, borderStyle]}>
         <View style={styles.title}>
           <Text style={[styles.fontSize18, styles.fontWeightBold, styles.fontColorBlue]}>{this.state.order.product_name}</Text>
           <Text style={[styles.fontSize18, styles.fontColorBlue]}>{this.state.order.price}</Text>
@@ -213,6 +231,7 @@ module.exports = React.createClass({
         <View>
           {this.renderProcessButtons()}
         </View>
+        {renderMemo()}
         {renderTraceLogHeader()}
         {renderTraceLogs()}
       </View>
@@ -258,8 +277,14 @@ var styles = StyleSheet.create({
     borderRadius: 2,
     marginTop: 10
   },
+  orderNormal: {
+    borderColor: '#1b809e'
+  },
   orderFinished: {
     borderColor: '#ccc'
+  },
+  orderHilight: {
+    borderColor: '#e35b5a'
   },
   text: {
     // flex: 1

@@ -171,7 +171,7 @@ module.exports = React.createClass({
           loading: false
         })
         if (typeof(responseData.data) === 'undefined') {
-          Alert.alert('提示', '出现错误，请确认您有访问权限')
+          Alert.alert('提示', '出现错误')
           return false
         }
         if (typeof(responseData.data.tasks) === 'undefined') {
@@ -238,12 +238,25 @@ module.exports = React.createClass({
     // task.merchant.coordinate = null;
 
     var renderMerchant = function () {
+      let needHilight = (function(orders) {
+        let _hasMemo = false;
+        for (var i = 0; i < orders.length; i++) {
+          if (orders[i].memo !== null) {
+            _hasMemo = true;
+            break;
+          }
+        }
+        return _hasMemo;
+
+      })(task.orders);
+      // console.log(needHilight);
+
       return (
         <View style={styles.merchant}>
           <View style={styles.merchantTitle}>
             <View style={styles.merchateTitleLeft}>
               <TouchableHighlight onLongPress={()=> _this._setClipboardContent(task.merchant.name)} onPress={()=> _this.openMap(task.merchant)} underlayColor='#ccc'>
-                <View style={{flexDirection: 'row'}}><Text style={[styles.merchantName, {color: '#22a1c4'}]}>{task.merchant.fake_name}</Text><Text style={styles.merchantName}>{task.merchant.name}</Text></View>
+                <View style={{flexDirection: 'row'}}><Text style={[styles.merchantName, {color: '#22a1c4'}]}>{task.merchant.fake_name}</Text><Text style={[styles.merchantName, {color: needHilight ? '#e35b5a' : '#22a1c4'}]}>{task.merchant.name}</Text></View>
               </TouchableHighlight>
             </View>
             <Text style={styles.price}>{`${task.orders.length}单 ${task.payment}元`}</Text>
